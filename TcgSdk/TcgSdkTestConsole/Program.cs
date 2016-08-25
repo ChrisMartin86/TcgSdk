@@ -14,7 +14,7 @@ namespace TcgSdkTestConsole
         {
             string filter = "?name=Charizard";
 
-            var cards = PokemonCard.Get(filter);
+            var cards = PokemonCard.Get(null);
         }
     }
 }

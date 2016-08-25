@@ -14,15 +14,16 @@ namespace TcgSdk
         /// <summary>
         /// The name of the card
         /// </summary>
-        string Name { get; set; }
+        string Name { get; }
         /// <summary>
         /// The URL to the image of the card
         /// </summary>
-        string ImageUrl { get; set; }
+        string ImageUrl { get; }
         /// <summary>
         /// The type of card
         /// </summary>
         CardType CardType { get; }
+    
     }
     /// <summary>
     /// Supported card types
