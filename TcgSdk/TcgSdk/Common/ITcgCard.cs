@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TcgSdk
+﻿namespace TcgSdk.Common
 {
     /// <summary>
     /// Common interface for all supported cards
@@ -12,31 +6,38 @@ namespace TcgSdk
     public interface ITcgCard
     {
         /// <summary>
-        /// The name of the card
+        /// The artist of the card. This may not match what is on the card as MTGJSON corrects many card misprints.
         /// </summary>
-        string Name { get; }
+        string Artist { get; }
+        /// <summary>
+        /// The type of card
+        /// </summary>
+        ITcgCardType CardType { get; }
+
         /// <summary>
         /// The URL to the image of the card
         /// </summary>
         string ImageUrl { get; }
+
         /// <summary>
-        /// The type of card
+        /// The name of the card
         /// </summary>
-        CardType CardType { get; }
-    
+        string Name { get; }
+
+        /// <summary>
+        /// The card number. This is printed at the bottom-center of the card in small text. This is a string, not an integer, because some cards have letters in their numbers.
+        /// </summary>
+        string Number { get; }
+
+        /// <summary>
+        /// The rarity of the card. Examples: Common, Uncommon, Rare, Mythic Rare, Special, Basic Land
+        /// </summary>
+        string Rarity { get; }
+
+        /// <summary>
+        ///	The set the card appears in (ex. BREAKthrough, Phantom Forces, Jungle, etc.)
+        /// </summary>
+        string Set { get; set; }
     }
-    /// <summary>
-    /// Supported card types
-    /// </summary>
-    public enum CardType
-    {
-        /// <summary>
-        /// Pokemon cards
-        /// </summary>
-        Pokemon = 0,
-        /// <summary>
-        /// Magic the Gathering cards
-        /// </summary>
-        MagicTheGathering = 1
-    }
+
 }

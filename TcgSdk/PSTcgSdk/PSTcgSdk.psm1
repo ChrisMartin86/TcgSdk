@@ -2,43 +2,51 @@
 
 Add-Type -Path C:\users\martincx\Source\Repos\TcgSdk\TcgSdk\TcgSdk\bin\Debug\TcgSdk.dll
 
-$Global:MagicApiUrl = "https://api.magicthegathering.io/v1/cards"
-$Global:PokemonApiUrl = "https://api.pokemontcg.io/v1/cards/"
-
 function Get-TcgCards
 {
+    <#
+    .SYNOPSIS
+    Get cards utilizing the TcgSdk for pokemontcg.io and magicthegathering.io
+
+    .PARAMETER CARDTYPE
+    The TcgSdk.CardType of the card(s) you would like
+
+    .PARAMETER FILTER
+    The System.Collections.Generic.Dictionary[string,string] filter. The Key should be the name of the parameter, and the value should be the value of the parameter. For lists, use | for or and , for and.
+    #>
     Param(
         [Parameter(
             Mandatory = $true,
             Position = 0)]
-        [TcgSdk.CardType] $CardType,
+        [TcgSdk.Common.ITcgCardType] $CardType,
 
         [Parameter(
             Mandatory = $false,
             Position = 1)]
-        [string] $Filter = ""
+        [System.Collections.Generic.Dictionary[string,string]] $Filter = (New-Object -TypeName 'System.Collections.Generic.Dictionary[string,string]')
         )
+
     try
     {
         switch ($CardType)
         {
-            ([TcgSdk.CardType]::MagicTheGathering) 
+            ([TcgSdk.Common.ITcgCardType]::MagicTheGathering) 
             { 
-                Write-Error -Exception (New-Object -TypeName System.ArgumentException -ArgumentList ("CardType $CardType not supported.")) -Message "CardType $CardType not supported. Terminating request."
+                $cards = [TcgSdk.Magic.MagicCard]::Get($Filter)
             }
-            ([TcgSdk.CardType]::Pokemon) 
+            ([TcgSdk.Common.ITcgCardType]::Pokemon) 
             { 
                 $cards = [TcgSdk.Pokemon.PokemonCard]::Get($Filter)
-
-                foreach ($card in $cards)
-                {
-                    Write-Output -InputObject $card
-                }
             }
             Default 
             { 
                 Write-Error -Exception (New-Object -TypeName System.ArgumentException -ArgumentList ("CardType $CardType not supported.")) -Message "CardType $CardType not supported. Terminating request."
             }
+        }
+
+        foreach ($card in $cards)
+        {
+            Write-Output -InputObject $card
         }
     }
     catch [System.Exception]
@@ -47,20 +55,32 @@ function Get-TcgCards
     }
 }
 
-function Simulate-OpeningHand
+function Get-Hand
 {
+    <#
+    .SYNOPSIS
+    Get an opening hand of TCG cards
+
+    .PARAMETER DECK
+    The pool of cards to retrieve a hand from.
+    #>
 	Param(
 		[Parameter(
 			Mandatory = $true,
 			Position = 0)]
-        [TcgSdk.ITcgCard[]] $Deck
+        [TcgSdk.Common.ITcgCard[]] $Deck,
+
+        [Parameter(
+            Mandatory = $false,
+            Position = 1)]
+        [int] $HandSize = 7
 		)
 
 	$ran = New-Object -TypeName System.Random
 
     $myOpeningHandCards = @()
     
-    for ($i = 1; $i -lt 8; $i++) 
+    for ($i = 0; $i -lt $HandSize; $i++) 
     {
         $cardNumber =  $ran.Next(0,60)
 
