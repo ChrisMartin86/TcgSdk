@@ -45,11 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common\CardType.cs" />
+    <Compile Include="Common\ITcgCardType.cs" />
     <Compile Include="Common\ITcgCard.cs" />
+    <Compile Include="Common\ITcgCardDeck.cs" />
     <Compile Include="Common\ITcgCardFactory.cs" />
     <Compile Include="Common\ITcgCardRequest.cs" />
     <Compile Include="Common\ITcgCardResponse.cs" />
+    <Compile Include="Common\Utility.cs" />
     <Compile Include="Magic\MagicCard.cs" />
     <Compile Include="Pokemon\PokemonCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

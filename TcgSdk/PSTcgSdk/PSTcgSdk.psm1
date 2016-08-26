@@ -55,7 +55,7 @@ function Get-TcgCards
     }
 }
 
-function Get-Hand
+function Get-TcgCardHand
 {
     <#
     .SYNOPSIS

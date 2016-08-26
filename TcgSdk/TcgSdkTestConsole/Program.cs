@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TcgSdk;
 using TcgSdk.Magic;
+using TcgSdk.Pokemon;
 using TcgSdk.Common;
 
 namespace TcgSdkTestConsole
@@ -15,9 +16,9 @@ namespace TcgSdkTestConsole
         {
             var filter = new Dictionary<string, string>();
 
-            filter.Add("name", "plains");
+            filter.Add("name", "charizard");
 
-            var cards = MagicCard.Get(filter);
+            var cards = PokemonCard.Get(filter);
         }
     }
 }
