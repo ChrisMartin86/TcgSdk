@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using TcgSdk.Common;
+﻿using TcgSdk.Common;
+using TcgSdk.Common.Cards;
 
 namespace TcgSdk.Magic
 {
     /// <summary>
     /// Magic the Gathering card from https://api.magicthegathering.io
     /// </summary>
-    public class MagicCard : ITcgCard
+    public class MagicCard : ITcgSdkObject, ITcgCard
     {
         /// <summary>
         /// The artist of the card. This may not match what is on the card as MTGJSON corrects many card misprints.
@@ -15,9 +14,9 @@ namespace TcgSdk.Magic
         public string Artist { get; set; }
 
         /// <summary>
-        /// The type of card. Always returns CardType.MagicTheGathering for this class.
+        /// The type of response. Always returns TcgSdkResponseType.MagicCard for this class.
         /// </summary>
-        public ITcgCardType CardType { get { return ITcgCardType.MagicTheGathering; } }
+        public TcgSdkResponseType ResponseType { get { return TcgSdkResponseType.MagicCard; } }
 
         /// <summary>
         /// Converted mana cost. Always a number.
@@ -155,6 +154,15 @@ namespace TcgSdk.Magic
         public string[] Variations { get; set; }
 
         /// <summary>
+        /// Return name of the card
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        /// <summary>
         /// The legality of the card.
         /// </summary>
         // Name conflict forced the underscore. I'm open to renaming suggestions -CM.
@@ -163,22 +171,12 @@ namespace TcgSdk.Magic
             public string Format { get; set; }
             public string Legality { get; set; }
         }
-
         /// <summary>
-        /// Get magic cards by using a parameter filter
+        /// Keep the constructor internal.
         /// </summary>
-        /// <param name="filter">Filter parameter, Key is parameter name, value is parameter value</param>
-        /// <returns>IEnumerable containing the requested cards.</returns>
-        public static IEnumerable<MagicCard> Get(IDictionary<string, string> filter)
+        internal MagicCard()
         {
-            try
-            {
-                return ITcgCardFactory<MagicCard>.Get(ITcgCardType.MagicTheGathering, filter);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("There was a problem retrieving your cards", e);
-            }
+
         }
 
     }

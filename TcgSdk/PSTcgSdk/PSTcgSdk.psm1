@@ -1,46 +1,57 @@
 # Import SDK Dll.
 
-Add-Type -Path C:\users\martincx\Source\Repos\TcgSdk\TcgSdk\TcgSdk\bin\Debug\TcgSdk.dll
+Add-Type -Path D:\TcgSdk\TcgSdk\TcgSdk\bin\Debug\TcgSdk.dll
 
-function Get-TcgCards
+$collectionPath = "C:\Users\Batman\Documents\TcgSdk\collection.json"
+
+if (Test-Path -Path $collectionPath)
+{
+	$Global:TcgCardCollection = [TcgSdk.Common.Cards.ITcgCardCollection]::ImportCollection($collectionPath)
+}
+else
+{
+	$Global:TcgCardCollection = New-Object -TypeName 'TcgSdk.Common.Cards.ITcgCardCollection'
+}
+
+function Get-ITcgResponse
 {
     <#
     .SYNOPSIS
     Get cards utilizing the TcgSdk for pokemontcg.io and magicthegathering.io
 
-    .PARAMETER CARDTYPE
-    The TcgSdk.CardType of the card(s) you would like
+    .PARAMETER $ResponseType
+    The TcgSdk.Common.ITcgResponseType of the object(s) you requested
 
     .PARAMETER FILTER
-    The System.Collections.Generic.Dictionary[string,string] filter. The Key should be the name of the parameter, and the value should be the value of the parameter. For lists, use | for or and , for and.
+    The TcgSdk.Common.ITcgRequestParameter[] filter. Use New-ITcgFilterParameter to generate.
     #>
     Param(
         [Parameter(
             Mandatory = $true,
             Position = 0)]
-        [TcgSdk.Common.ITcgCardType] $CardType,
+        [TcgSdk.Common.ITcgResponseType] $ResponseType,
 
         [Parameter(
             Mandatory = $false,
             Position = 1)]
-        [System.Collections.Generic.Dictionary[string,string]] $Filter = (New-Object -TypeName 'System.Collections.Generic.Dictionary[string,string]')
+        [TcgSdk.Common.ITcgRequestParameter[]] $Filter
         )
 
     try
     {
-        switch ($CardType)
+        switch ($ResponseType)
         {
-            ([TcgSdk.Common.ITcgCardType]::MagicTheGathering) 
+            ([TcgSdk.Common.ITcgResponseType]::MagicCard) 
             { 
-                $cards = [TcgSdk.Magic.MagicCard]::Get($Filter)
+                $cards = [TcgSdk.Common.Cards.ITcgCardFactory[TcgSdk.Magic.MagicCard]]::Get($ResponseType, $Filter)
             }
-            ([TcgSdk.Common.ITcgCardType]::Pokemon) 
+            ([TcgSdk.Common.ITcgResponseType]::PokemonCard) 
             { 
-                $cards = [TcgSdk.Pokemon.PokemonCard]::Get($Filter)
+                $cards = [TcgSdk.Common.Cards.ITcgCardFactory[TcgSdk.Pokemon.PokemonCard]]::Get($ResponseType, $Filter)
             }
             Default 
             { 
-                Write-Error -Exception (New-Object -TypeName System.ArgumentException -ArgumentList ("CardType $CardType not supported.")) -Message "CardType $CardType not supported. Terminating request."
+                Write-Error -Exception (New-Object -TypeName 'System.ArgumentException' -ArgumentList ("ResponseType $ResponseType not supported.")) -Message "ResponseType $ResponseType not supported. Terminating request."
             }
         }
 
@@ -55,11 +66,11 @@ function Get-TcgCards
     }
 }
 
-function Get-TcgCardHand
+function Draw-ITcgCards
 {
     <#
     .SYNOPSIS
-    Get an opening hand of TCG cards
+    Draw a number of ITcgCards from a deck
 
     .PARAMETER DECK
     The pool of cards to retrieve a hand from.
@@ -67,33 +78,151 @@ function Get-TcgCardHand
 	Param(
 		[Parameter(
 			Mandatory = $true,
-			Position = 0)]
-        [TcgSdk.Common.ITcgCard[]] $Deck,
+			Position = 0,
+            ParameterSetName = 'FROMOBJECT')]
+        [TcgSdk.Common.Cards.ITcgCardDeck] $Deck,
 
-        [Parameter(
-            Mandatory = $false,
-            Position = 1)]
-        [int] $HandSize = 7
+		[Parameter(
+			Mandatory = $true,
+			Position = 0,
+            ParameterSetName = 'BYNAME')]
+        [string] $Name
 		)
 
-	$ran = New-Object -TypeName System.Random
-
-    $myOpeningHandCards = @()
-    
-    for ($i = 0; $i -lt $HandSize; $i++) 
+    if ($PSCmdlet.ParameterSetName -eq 'BYNAME')
     {
-        $cardNumber =  $ran.Next(0,60)
-
-        while ($myOpeningHandCards.Contains($cardNumber))
+        try
         {
-            $cardNumber = $ran.Next(0,60)
+            $Deck = $Global:MyCurrentDecks[$Name]
         }
-
-        $myOpeningHandCards += $cardNumber
+        catch
+        {
+            Write-Error -Exception $Error[0] -Message "Unable to find $Name in deck list."
+            return
+        }
     }
 
-    foreach ($cardNumber_ in $myOpeningHandCards)
+	$cards = $Deck.DrawCards(7)
+}
+
+function New-ITcgCardDeck
+{
+    [CmdletBinding()]
+    Param(
+        [Parameter(
+            Mandatory = $true,
+            Position = 0)]
+        [string] $Name,
+
+        [Parameter(
+            Mandatory = $true,
+            Position = 1)]
+        [TcgSdk.Common.ITcgCard[]] $Cards
+        )
+
+    $cardHashSet = New-Object -TypeName 'System.Collections.Generic.HashSet[TcgSdk.Common.ITcgCard]' -ArgumentList (,$Cards)
+
+	New-Object -TypeName 'TcgSdk.Common.ITcgCardDeck' -ArgumentList ($name, $cardHashSet)
+    
+}
+
+function Add-ITcgCardDeck
+{
+    [CmdletBinding()]
+    Param(
+        [Parameter(
+            Mandatory = $true,
+            Position = 0,
+            ParameterSetName = "FROMOBJECT")]
+        [TcgSdk.Common.ITcgCardDeck] $Deck,
+
+        [Parameter(
+            Mandatory = $true,
+            Position = 0,
+            ParameterSetName = "NEW")]
+        [string] $Name,
+
+        [Parameter(
+            Mandatory = $true,
+            Position = 1,
+            ParameterSetName = "NEW")]
+        [TcgSdk.Common.ITcgCard[]] $Cards,
+
+		[Parameter(
+			ParameterSetName = "NEW")]
+		[Parameter(
+			ParameterSetName = "FROMOBJECT")]
+		[switch] $FromCollection
+        )
+
+    function addDeck
     {
-        Write-Output -InputObject $Deck[$cardNumber_]
+        Param($Deck_,$FromCollection)
+
+        $Global:TcgCardCollection.AddDecks($Deck_, $FromCollection)
     }
+
+    if ($PSCmdlet.ParameterSetName -eq 'NEW')
+    {
+        $Deck = New-ITcgCardDeck -Name $Name -Cards $Cards
+    }
+    
+	addDeck -Deck_ $Deck -FromCollection $FromCollection
+}
+
+function Export-ITcgCardCollection
+{
+	[CmdletBinding()]
+	Param(
+		[Parameter(
+			Mandatory = $false,
+			Position = 0)]
+		[string] $Path = $collectionPath
+		)
+
+	if ($Path -ne $collectionPath)
+	{
+		Write-Warning -Message "CollectionPath set to $collectionPath, and you are exporting to an alternate location. Collection will not automatically import upon module load."
+	}
+
+	$Global:TcgCardCollection.ExportCollection($Path)
+}
+
+function Import-ITcgCardCollection
+{
+	[CmdletBinding()]
+	Param(
+		[Parameter(
+			Mandatory = $false,
+			Position = 0)]
+		[string] $Path = $collectionPath
+		)
+	
+	if (!(Test-Path -Path $Path))
+	{
+		Write-Error -Exception (New-Object -TypeName System.ArgumentException -ArgumentList ("Path $Path not found")) -Message "Path $Path not found"
+		return
+	}
+
+	[TcgSdk.Common.ITcgCardCollection]::ImportCollection($Path)
+}
+
+function New-ITcgFilterParameter
+{
+    Param(
+        [Parameter(
+            Mandatory = $true,
+            Position = 0)]
+        [string] $Name,
+
+        [Parameter(
+            Mandatory = $true,
+            Position = 1)]
+        [object] $Value,
+
+        [switch] $UseAnd,
+        [switch] $Multivalue
+        )
+
+    [TcgSdk.Common.ITcgCardRequestParameter]::New($Name, $Value, $UseAnd, $Multivalue)
 }

@@ -7,6 +7,7 @@ using TcgSdk;
 using TcgSdk.Magic;
 using TcgSdk.Pokemon;
 using TcgSdk.Common;
+using TcgSdk.Common.Cards;
 
 namespace TcgSdkTestConsole
 {
@@ -14,11 +15,9 @@ namespace TcgSdkTestConsole
     {
         static void Main()
         {
-            var filter = new Dictionary<string, string>();
+            var param = new TcgSdkRequestParameter("name", "mirrodin", false, false) ;
 
-            filter.Add("name", "charizard");
-
-            var cards = PokemonCard.Get(filter);
+            var cards = ITcgSdkResponseFactory<MagicSet>.Get(TcgSdkResponseType.MagicSet, new TcgSdkRequestParameter[] { param });
         }
     }
 }

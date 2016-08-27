@@ -1,4 +1,4 @@
-﻿namespace TcgSdk.Common
+﻿namespace TcgSdk.Common.Cards
 {
     /// <summary>
     /// Common interface for all supported cards
@@ -10,9 +10,9 @@
         /// </summary>
         string Artist { get; }
         /// <summary>
-        /// The type of card
+        /// The type of response/card
         /// </summary>
-        ITcgCardType CardType { get; }
+        TcgSdkResponseType ResponseType { get; }
 
         /// <summary>
         /// The URL to the image of the card
@@ -38,6 +38,12 @@
         ///	The set the card appears in (ex. BREAKthrough, Phantom Forces, Jungle, etc.)
         /// </summary>
         string Set { get; set; }
+
+        /// <summary>
+        /// Must override the ToString method to make lists pretty
+        /// </summary>
+        /// <returns>Name of card</returns>
+        string ToString();
     }
 
 }

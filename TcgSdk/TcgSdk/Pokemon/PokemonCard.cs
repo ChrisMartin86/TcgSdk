@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using TcgSdk.Common;
+﻿using TcgSdk.Common;
+using TcgSdk.Common.Cards;
 
 
 namespace TcgSdk.Pokemon
@@ -8,7 +7,7 @@ namespace TcgSdk.Pokemon
     /// <summary>
     /// Pokemon card from https://api.pokemontcg.io
     /// </summary>
-    public class PokemonCard : ITcgCard
+    public class PokemonCard : ITcgSdkObject, ITcgCard
     {
         /// <summary>
         /// The artist of the card.
@@ -21,9 +20,9 @@ namespace TcgSdk.Pokemon
         public Attack[] Attacks { get; set; }
 
         /// <summary>
-        /// The type of card. Always returns CardType.Pokemon for this class.
+        /// The type of response. Always returns TcgSdkResponseType.PokemonCard for this class.
         /// </summary>
-        public ITcgCardType CardType { get { return ITcgCardType.Pokemon; } }
+        public TcgSdkResponseType ResponseType { get { return TcgSdkResponseType.PokemonCard; } }
 
         /// <summary>
         /// The hit points of the card. This typically appears in the top right corner of the card.
@@ -112,6 +111,23 @@ namespace TcgSdk.Pokemon
         public Weakness[] Weaknesses { get; set; }
 
         /// <summary>
+        /// Return name of the card
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return Name;
+        }
+
+        /// <summary>
+        /// Keep the constructor internal.
+        /// </summary>
+        internal PokemonCard()
+        {
+
+        }
+
+        /// <summary>
         /// Attack data
         /// </summary>
         public struct Attack
@@ -138,24 +154,6 @@ namespace TcgSdk.Pokemon
             public string Type { get; set; }
             public string Value { get; set; }
         }
-
-        /// <summary>
-        /// Get magic cards by using a parameter filter
-        /// </summary>
-        /// <param name="filter">Filter parameter, Key is parameter name, value is parameter value</param>
-        /// <returns>IEnumerable containing the requested cards.</returns>
-        public static IEnumerable<PokemonCard> Get(IDictionary<string, string> filter)
-        {
-            try
-            {
-                return ITcgCardFactory<PokemonCard>.Get(ITcgCardType.Pokemon, filter);
-            }
-            catch (Exception e)
-            {
-                throw new Exception("There was a problem retrieving your cards", e);
-            }
-        }
-
 
 
     }

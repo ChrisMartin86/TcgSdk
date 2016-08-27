@@ -7,17 +7,25 @@ using System.Threading.Tasks;
 namespace TcgSdk.Common
 {
     /// <summary>
-    /// Supported card types
+    /// Supported response types
     /// </summary>
-    public enum ITcgCardType
+    public enum TcgSdkResponseType
     {
         /// <summary>
         /// Pokemon cards
         /// </summary>
-        Pokemon = 0,
+        PokemonCard = 0,
         /// <summary>
         /// Magic the Gathering cards
         /// </summary>
-        MagicTheGathering = 1
+        MagicCard = 1,
+        /// <summary>
+        /// Pokemon TCG sets
+        /// </summary>
+        PokemonSet = 2,
+        /// <summary>
+        /// Magic TCG sets
+        /// </summary>
+        MagicSet = 3
     }
 }
