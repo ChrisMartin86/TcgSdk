@@ -40,7 +40,7 @@ namespace TcgSdk.Common
         /// <summary>
         /// True or false if the request is confirmed, which means it is a valid parameter and is ready to be used.
         /// </summary>
-        public bool Confirmed { get; set; }
+        public bool Confirmed { get; private set; }
 
         /// <summary>
         /// Instantiate a new request parameter
@@ -59,8 +59,6 @@ namespace TcgSdk.Common
             try
             {
                 validate();
-                validated = true;
-                Confirmed = true;
             }
             catch (InvalidParameterException e)
             {
@@ -72,16 +70,7 @@ namespace TcgSdk.Common
             }
             catch (Exception e)
             {
-                try
-                {
-                    TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 0);
-                }
-                catch
-                {
-                    // Error writing log to event file, stopping here to avoid endless loop of errors.
-                }
-
-                throw new Exception("There was an unknown error", e);
+                throw e;
             }
         }
         /// <summary>

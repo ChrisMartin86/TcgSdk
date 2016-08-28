@@ -44,6 +44,8 @@
         /// </summary>
         /// <returns>Name of card</returns>
         string ToString();
+
+
     }
 
 }

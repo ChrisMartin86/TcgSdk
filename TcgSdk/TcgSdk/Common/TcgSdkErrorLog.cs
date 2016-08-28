@@ -10,10 +10,6 @@ namespace TcgSdk.Common
     internal class TcgSdkErrorLog
     {
         /// <summary>
-        /// The name of the log to write to. Set to application.
-        /// </summary>
-        private string logName = "Application";
-        /// <summary>
         /// Source is this app, TcgSdk
         /// </summary>
         private string source = "TcgSDk";
@@ -105,10 +101,14 @@ namespace TcgSdk.Common
         /// </summary>
         public void WriteLog()
         {
-            if (!EventLog.SourceExists(source))
-                EventLog.CreateEventSource(source, logName);
-
-            EventLog.WriteEntry(source, Message, EventLogEntryType, EventId);
+            try
+            {
+                EventLog.WriteEntry(source, Message, EventLogEntryType, EventId);
+            }
+            catch
+            {
+                // Stop exception here to avoid endless loop
+            }
         }
         /// <summary>
         /// Create a new log object, and immediately write it to the event log.
@@ -118,9 +118,16 @@ namespace TcgSdk.Common
         /// <param name="eventId">The integer id of the event. Defaults to 0 (zero).</param>
         public static void WriteLog(Exception e, EventLogEntryType eventLogEntryType, int eventId = 0)
         {
-            var log = new TcgSdkErrorLog(e, eventLogEntryType, eventId);
+            try
+            { 
+                var log = new TcgSdkErrorLog(e, eventLogEntryType, eventId);
 
-            log.WriteLog();
+                log.WriteLog();
+            }
+            catch
+            {
+                // Stop exception here to avoid endless loop
+            }
         }
 
     }

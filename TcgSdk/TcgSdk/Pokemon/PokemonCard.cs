@@ -1,5 +1,8 @@
 ﻿using TcgSdk.Common;
 using TcgSdk.Common.Cards;
+using System;
+using System.Collections.Generic;
+    
 
 
 namespace TcgSdk.Pokemon
@@ -155,6 +158,21 @@ namespace TcgSdk.Pokemon
             public string Value { get; set; }
         }
 
+        public IEnumerable<PokemonSet> GetSets()
+        {
+            try
+            {
+                var requestParameters = new TcgSdkRequestParameter("name", SetCode, false, false);
+
+                var response = ITcgSdkResponseFactory<PokemonSet>.Get(TcgSdkResponseType.PokemonSet, new TcgSdkRequestParameter[] { requestParameters });
+
+                return response.Sets;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+        }
 
     }
 }

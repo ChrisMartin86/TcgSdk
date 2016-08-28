@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using TcgSdk.Configuration;
 
-namespace TcgSdk.Common.Cards
+namespace TcgSdk.Common
 {
     /// <summary>
     /// Common code for creating/retrieving cards from the supported APIs

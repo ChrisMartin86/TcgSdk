@@ -21,7 +21,7 @@ namespace TcgSdk.Configuration
                 case TcgSdkResponseType.MagicSet:
                     return "https://api.magicthegathering.io/v1/" + endPoint;
                 default:
-                    throw new NotImplementedException(string.Format("CardType {0} not supported", responseType.ToString()));
+                    throw new NotImplementedException(string.Format("TcgSdkResponseType {0} not supported", responseType.ToString()));
             }   
         }
     }

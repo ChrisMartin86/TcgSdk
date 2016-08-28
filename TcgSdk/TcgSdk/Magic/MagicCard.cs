@@ -1,5 +1,7 @@
 ﻿using TcgSdk.Common;
 using TcgSdk.Common.Cards;
+using System;
+using System.Collections.Generic;
 
 namespace TcgSdk.Magic
 {
@@ -177,6 +179,22 @@ namespace TcgSdk.Magic
         internal MagicCard()
         {
 
+        }
+
+        public IEnumerable<MagicSet> GetSets()
+        {
+            try
+            {
+                var requestParameters = new TcgSdkRequestParameter("name", Set, false, false);
+
+                var response = ITcgSdkResponseFactory<MagicSet>.Get(TcgSdkResponseType.MagicSet, new TcgSdkRequestParameter[] { requestParameters });
+
+                return response.Sets;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
     }

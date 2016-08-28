@@ -15,6 +15,7 @@ namespace TcgSdkTestConsole
     {
         static void Main()
         {
+
             var param = new TcgSdkRequestParameter("name", "mirrodin", false, false) ;
 
             var cards = ITcgSdkResponseFactory<MagicSet>.Get(TcgSdkResponseType.MagicSet, new TcgSdkRequestParameter[] { param });

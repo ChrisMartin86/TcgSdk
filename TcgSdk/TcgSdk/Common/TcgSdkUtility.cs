@@ -69,9 +69,58 @@ namespace TcgSdk.Common
 
         }
 
+        /// <summary>
+        /// Flip a single coin
+        /// </summary>
+        /// <returns>CoinFlipResult</returns>
         public static CoinFlipResult FlipCoin()
         {
             return (CoinFlipResult)GetRandomInt(0, 2);
+        }
+        /// <summary>
+        /// Flip a number of coins greater than zero
+        /// </summary>
+        /// <param name="numberOfCoins">A number greater than 0</param>
+        /// <returns>CoinFlipResult</returns>
+        public static IEnumerable<CoinFlipResult> FlipCoins(int numberOfCoins = 1)
+        {
+            if (numberOfCoins < 0)
+                throw new ArgumentOutOfRangeException("numberOfCoins must be 0 or greater");
+
+            List<CoinFlipResult> list = new List<CoinFlipResult>();
+
+            for (int i = 0; i < numberOfCoins; i++)
+            {
+                list.Add((CoinFlipResult)GetRandomInt(0, 2));
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Flip a number of coins asynchronously. Might be faster if you are flipping a truely huge number of dice, but otherwise just for fun.
+        /// </summary>
+        /// <param name="numberOfCoins">The number of coins to flip.</param>
+        /// <returns>Awaitable task containing an array of the results as IEnumerable of CoinFlipResult</returns>
+        public async static Task<IEnumerable<CoinFlipResult>> FlipCoinsAsync(int numberOfCoins = 1)
+        {
+            List<Task<CoinFlipResult>> taskList = null;
+
+            List<CoinFlipResult> resultArray = new List<CoinFlipResult>();
+
+            for (int i = 0; i < numberOfCoins; i++)
+            {
+                taskList.Add(Task.Factory.StartNew(() => FlipCoin()));
+            }
+
+            foreach (Task<CoinFlipResult> item in taskList)
+            {
+                CoinFlipResult result = await item;
+
+                resultArray.Add(result);
+            }
+
+            return resultArray;
         }
 
         /// <summary>

@@ -1,5 +1,6 @@
 ﻿using System;
 using TcgSdk.Common;
+using System.Collections.Generic;
 
 namespace TcgSdk.Pokemon
 {
@@ -48,6 +49,22 @@ namespace TcgSdk.Pokemon
         public override string ToString()
         {
             return Name;
+        }
+
+        public IEnumerable<PokemonCard> GetCardsInSet()
+        {
+            try
+            {
+                var requestParameters = new TcgSdkRequestParameter("set", Code, false, false);
+
+                var cards = ITcgSdkResponseFactory<PokemonCard>.Get(TcgSdkResponseType.PokemonCard, new TcgSdkRequestParameter[] { requestParameters });
+
+                return cards.Cards;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

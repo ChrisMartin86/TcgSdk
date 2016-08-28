@@ -1,5 +1,7 @@
 ﻿using System;
 using TcgSdk.Common;
+using System.Collections.Generic;
+
 
 namespace TcgSdk.Magic
 {
@@ -43,6 +45,22 @@ namespace TcgSdk.Magic
         public override string ToString()
         {
             return Name;
+        }
+
+        public IEnumerable<MagicCard> GetCardsInSet()
+        {
+            try
+            {
+                var requestParameters = new TcgSdkRequestParameter("set", Code, false, false);
+
+                var cards = ITcgSdkResponseFactory<MagicCard>.Get(TcgSdkResponseType.MagicCard, new TcgSdkRequestParameter[] { requestParameters });
+
+                return cards.Cards;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }
