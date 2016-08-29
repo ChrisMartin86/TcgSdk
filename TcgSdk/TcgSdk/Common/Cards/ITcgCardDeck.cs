@@ -20,7 +20,6 @@ namespace TcgSdk.Common.Cards
         /// Remaining cards after draws
         /// </summary>
         public IDictionary<ITcgCard, int> RemainingCards { get; private set; }
-
         /// <summary>
         /// The count of all cards in the deck
         /// </summary>

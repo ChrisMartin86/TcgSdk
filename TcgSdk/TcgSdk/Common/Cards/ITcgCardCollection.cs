@@ -228,7 +228,7 @@ namespace TcgSdk.Common.Cards
 
             return invalidCards;
         }
-
+        [Serializable]
         public class CardNotInCollectionException : Exception
         {
             public IDictionary<ITcgCard, int> InvalidCards { get; private set; }
@@ -238,7 +238,7 @@ namespace TcgSdk.Common.Cards
                 InvalidCards = invalidCards;
             }
         }
-
+        [Serializable]
         public class InvalidInitialCollectionConfigurationException : Exception
         {
             public InvalidInitialCollectionConfigurationException(string message) : base(message)
@@ -246,7 +246,7 @@ namespace TcgSdk.Common.Cards
 
             }
         }
-
+        [Serializable]
         public class CollectionNotFoundException : Exception
         {
             public CollectionNotFoundException(string path) : base(string.Format("Collection not found at {0}", path))

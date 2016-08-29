@@ -16,7 +16,7 @@ namespace TcgSdk.Common
         /// <param name="responseType">TcgSdkResponseType. Should correspond with T.</param>
         /// <param name="parameters">Filter parameters</param>
         /// <returns>IEnumerable of requested cards</returns>
-        public static ITcgSdkResponse<T> Get(TcgSdkResponseType responseType, IEnumerable<TcgSdkRequestParameter> parameters)
+        public static ITcgSdkResponse<T> Get(TcgSdkResponseType responseType, IEnumerable<TcgSdkRequestParameter> parameters, int pageNumber = 1, int pageSize = 100)
         {
             string baseUrl;
 
@@ -27,32 +27,32 @@ namespace TcgSdk.Common
             catch (NotImplementedException e)
             {
                 TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 3);
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
                 TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 0);
-                throw e;
+                throw;
             }
 
             try
             {
-                return TcgSdkRequest<T>.GetResponse(baseUrl, parameters, "GET");
+                return TcgSdkRequest<T>.GetResponse(baseUrl, parameters, "GET", pageNumber, pageSize);
             }
             catch (TcgSdkResponse<T>.TcgSdkResponseException e)
             {
                 TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 1);
-                throw e;
+                throw;
             }
             catch (TcgSdkRequest<T>.ITcgCardResponseDeserializationException e)
             {
                 TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 2);
-                throw e;
+                throw;
             }
             catch (Exception e)
             {
                 TcgSdkErrorLog.WriteLog(e, System.Diagnostics.EventLogEntryType.Error, 0);
-                throw new Exception("There was an unknown problem getting the requested cards", e);
+                throw;
             }
         }
 
@@ -94,13 +94,9 @@ namespace TcgSdk.Common
                 return baseUrl;
 
             }
-            catch (NotImplementedException e)
+            catch
             {
-                throw e;
-            }
-            catch (Exception e)
-            {
-                throw e;
+                throw;
             }
         }
         /// <summary>

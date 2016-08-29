@@ -51,13 +51,19 @@ namespace TcgSdk.Pokemon
             return Name;
         }
 
-        public IEnumerable<PokemonCard> GetCardsInSet()
+        public IEnumerable<PokemonCard> GetCardsInSet(int pageNumber = 1, int pageSize = 1000)
         {
+            string pageNumber_ = pageNumber.ToString();
+            string pageSize_ = pageSize.ToString();
+
             try
             {
-                var requestParameters = new TcgSdkRequestParameter("set", Code, false, false);
+                var requestParameters = new TcgSdkRequestParameter[]
+                {
+                    new TcgSdkRequestParameter("set", Name, false, false)
+                };
 
-                var cards = ITcgSdkResponseFactory<PokemonCard>.Get(TcgSdkResponseType.PokemonCard, new TcgSdkRequestParameter[] { requestParameters });
+                var cards = ITcgSdkResponseFactory<PokemonCard>.Get(TcgSdkResponseType.PokemonCard, requestParameters );
 
                 return cards.Cards;
             }

@@ -47,13 +47,19 @@ namespace TcgSdk.Magic
             return Name;
         }
 
-        public IEnumerable<MagicCard> GetCardsInSet()
+        public IEnumerable<MagicCard> GetCardsInSet(int pageNumber = 1, int pageSize = 1000)
         {
+            string pageNumber_ = pageNumber.ToString();
+            string pageSize_ = pageSize.ToString();
+
             try
             {
-                var requestParameters = new TcgSdkRequestParameter("set", Code, false, false);
+                var requestParameters = new TcgSdkRequestParameter[] 
+                {
+                    new TcgSdkRequestParameter("set", Code, false, false)
+                };
 
-                var cards = ITcgSdkResponseFactory<MagicCard>.Get(TcgSdkResponseType.MagicCard, new TcgSdkRequestParameter[] { requestParameters });
+                var cards = ITcgSdkResponseFactory<MagicCard>.Get(TcgSdkResponseType.MagicCard, requestParameters );
 
                 return cards.Cards;
             }

@@ -20,7 +20,7 @@ namespace TcgSdk.Common
         /// <summary>
         /// Internal name variable
         /// </summary>
-        private string name_ = null;
+        internal string name_ = null;
         /// <summary>
         /// Internal value variable, before being cast to a usable type
         /// </summary>
@@ -60,18 +60,11 @@ namespace TcgSdk.Common
             {
                 validate();
             }
-            catch (InvalidParameterException e)
+            catch
             {
-                throw e;
+                throw;
             }
-            catch (ParameterAlreadyValidatedException e)
-            {
-                throw e;
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
+
         }
         /// <summary>
         /// Instantiate a new request parameter
@@ -86,12 +79,24 @@ namespace TcgSdk.Common
         }
 
         /// <summary>
+        /// Create a new List of TcgSdkRequestParameter. Mostly useful in PowerShell because it has a hard time easily converting from single-object to multi-object.
+        /// </summary>
+        /// <returns>New List of TcgSdkRequestParameter</returns>
+        public static List<TcgSdkRequestParameter> NewList()
+        {
+            return new List<TcgSdkRequestParameter>();
+        }
+
+        /// <summary>
         /// Validate the object and populate the inner parameter values
         /// </summary>
         private void validate()
         {
             if (validated)
                 throw new ParameterAlreadyValidatedException();
+
+            if ((name_.ToUpper() == "PAGENUMBER") || (name_.ToUpper() == "PAGESIZE"))
+                throw new ParameterAlreadyExistsException(name_);
 
             try
             {
@@ -122,12 +127,11 @@ namespace TcgSdk.Common
         /// <returns>The url string filter of the parameter</returns>
         public override string ToString()
         {
-            if (!Confirmed)
-                throw new InvalidParameterException(new TcgSdkRequestParameter[] { this });
+            string nameValue = name_ ?? string.Empty;
 
             var sb = new StringBuilder();
 
-            sb.Append(string.Format("{0}=", name_));
+            sb.Append(string.Format("{0}=", nameValue));
 
             if (multiValue_)
             {
@@ -135,14 +139,18 @@ namespace TcgSdk.Common
                 {
                     foreach (string item in multiValueParameterValues)
                     {
-                        sb.Append(string.Format("{0},", item));
+                        string itemValue = item ?? string.Empty;
+
+                        sb.Append(string.Format("{0},", itemValue));
                     }
                 }
                 else
                 {
                     foreach (string item in multiValueParameterValues)
                     {
-                        sb.Append(string.Format("{0}|", item));
+                        string itemValue = item ?? string.Empty;
+
+                        sb.Append(string.Format("{0}|", itemValue));
                     }
                 }
 
@@ -159,7 +167,6 @@ namespace TcgSdk.Common
             return sb.ToString();
         }
 
-
         /// <summary>
         /// Thrown when validate() is called on a parameter that's already been validated.
         /// </summary>
@@ -171,6 +178,27 @@ namespace TcgSdk.Common
             public override string Message
             {
                 get { return "This instance has already been validated."; }
+            }
+        }
+
+        /// <summary>
+        /// Thrown when a parameter is created with the same name as an already added parameter.
+        /// </summary>
+        public class ParameterAlreadyExistsException : Exception
+        {
+            public string ParameterName { get; private set; }
+
+            /// <summary>
+            /// A parameter with this name is already present.
+            /// </summary>
+            public override string Message
+            {
+                get { return string.Format("Parameter {0} already exists", ParameterName); }
+            }
+
+            public ParameterAlreadyExistsException(string parameterName)
+            {
+                ParameterName = parameterName;
             }
         }
         /// <summary>

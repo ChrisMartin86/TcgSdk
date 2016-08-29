@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
@@ -43,29 +44,28 @@ namespace TcgSdk.Common
         {
             try
             {
-                return JsonConvert.DeserializeObject<TcgSdkResponse<T>>(getHttpResponseString(buildRequestUrl(), "GET"));
+                string requestUrl = buildRequestUrl();
+
+                string httpResponseString = getHttpResponseString(requestUrl, "GET");
+
+                return JsonConvert.DeserializeObject<TcgSdkResponse<T>>(httpResponseString);
             }
-            catch (TcgSdkResponse<T>.TcgSdkResponseException e)
+            catch
             {
-                throw e;
-            }
-            catch (ITcgCardResponseDeserializationException e)
-            {
-                throw e;
-            }
-            catch (Exception e)
-            {
-                throw new Exception("There was a problem deserializing the response.", e);
+                throw;
             }
         }
 
-        public static TcgSdkResponse<T> GetResponse(string baseUrl, IEnumerable<TcgSdkRequestParameter> parameters, string method)
+        public static TcgSdkResponse<T> GetResponse(string baseUrl, IEnumerable<TcgSdkRequestParameter> parameters, string method, int pageNumber = 1, int pageSize = 100)
         {
             var request = new TcgSdkRequest<T>
             {
                 BaseUrl = baseUrl,
                 Parameters = parameters,
-                Method = method
+                Method = method,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+                
             };
 
             return request.GetResponse();
@@ -103,6 +103,8 @@ namespace TcgSdk.Common
                     urlSb.Append("?");
                 }
 
+                urlSb.Append(string.Format("pageNumber={0}&pageSize={1}&", pageNumber.ToString(), pageSize.ToString()));
+
                 foreach (TcgSdkRequestParameter item in Parameters)
                 {
                     urlSb.Append(item.ToString());
@@ -133,6 +135,7 @@ namespace TcgSdk.Common
         /// <param name="url">The URL to make the request to</param>
         /// <param name="method">The http method to use</param>
         /// <returns>JSON response</returns>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
         private static string getHttpResponseString(string url, string method)
         {
             try
@@ -158,7 +161,7 @@ namespace TcgSdk.Common
                 throw new TcgSdkResponse<T>.TcgSdkResponseException(e);
             }
         }
-
+        [Serializable]
         public class ITcgCardResponseDeserializationException : Exception
         {
             public ITcgCardResponseDeserializationException() : base("There was a problem deserializing your request.")

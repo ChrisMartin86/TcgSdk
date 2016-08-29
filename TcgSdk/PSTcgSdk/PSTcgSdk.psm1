@@ -13,59 +13,6 @@ else
 	$Global:TcgCardCollection = New-Object -TypeName 'TcgSdk.Common.Cards.ITcgCardCollection'
 }
 
-function Get-ITcgResponse
-{
-    <#
-    .SYNOPSIS
-    Get cards utilizing the TcgSdk for pokemontcg.io and magicthegathering.io
-
-    .PARAMETER $ResponseType
-    The TcgSdk.Common.ITcgResponseType of the object(s) you requested
-
-    .PARAMETER FILTER
-    The TcgSdk.Common.ITcgRequestParameter[] filter. Use New-ITcgFilterParameter to generate.
-    #>
-    Param(
-        [Parameter(
-            Mandatory = $true,
-            Position = 0)]
-        [TcgSdk.Common.ITcgResponseType] $ResponseType,
-
-        [Parameter(
-            Mandatory = $false,
-            Position = 1)]
-        [TcgSdk.Common.ITcgRequestParameter[]] $Filter
-        )
-
-    try
-    {
-        switch ($ResponseType)
-        {
-            ([TcgSdk.Common.ITcgResponseType]::MagicCard) 
-            { 
-                $cards = [TcgSdk.Common.Cards.ITcgCardFactory[TcgSdk.Magic.MagicCard]]::Get($ResponseType, $Filter)
-            }
-            ([TcgSdk.Common.ITcgResponseType]::PokemonCard) 
-            { 
-                $cards = [TcgSdk.Common.Cards.ITcgCardFactory[TcgSdk.Pokemon.PokemonCard]]::Get($ResponseType, $Filter)
-            }
-            Default 
-            { 
-                Write-Error -Exception (New-Object -TypeName 'System.ArgumentException' -ArgumentList ("ResponseType $ResponseType not supported.")) -Message "ResponseType $ResponseType not supported. Terminating request."
-            }
-        }
-
-        foreach ($card in $cards)
-        {
-            Write-Output -InputObject $card
-        }
-    }
-    catch [System.Exception]
-    {
-        Write-Error -Message "There was a problem retrieving the requested cards. $($Error[0])"
-    }
-}
-
 function Draw-ITcgCards
 {
     <#
